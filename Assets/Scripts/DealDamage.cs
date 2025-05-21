@@ -5,16 +5,42 @@ using UnityEngine;
 public class DealDamage : MonoBehaviour
 {
     [SerializeField]
-    private float m_damage = 10f;
+    private float m_damage = 0;
+    private UnitController m_unitCtrler;
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.CompareTag("EnemyAI")
-            || other.CompareTag("Player")
-            || other.CompareTag("FriendlyAI"))
+        if (m_unitCtrler.TargetType == UnitType.Enemy && other.CompareTag("EnemyAI"))
         {
+            UnitController otherUnitCtrler = other.GetComponent<UnitController>();
+            if (!(m_unitCtrler.m_targetCtrler && m_unitCtrler.m_targetCtrler.ID == otherUnitCtrler.ID))
+            {
+                return;
+            }
+
             HealthSystem enemyHealth = other.GetComponent<HealthSystem>();
             enemyHealth.TakeDamage(m_damage);
         }
+        else if (m_unitCtrler.TargetType == UnitType.Player && other.CompareTag("Player"))
+        {
+            UnitController otherUnitCtrler = other.GetComponent<UnitController>();
+            if (!(m_unitCtrler.m_targetCtrler && m_unitCtrler.m_targetCtrler.ID == otherUnitCtrler.ID))
+            {
+                return;
+            }
+
+            HealthSystem enemyHealth = other.GetComponent<HealthSystem>();
+            enemyHealth.TakeDamage(m_damage);
+        }
+    }
+
+    public void SetDamage(int value)
+    {
+        m_damage = value;
+    }
+
+    public void SetUnitCtrler(UnitController unitCtrler)
+    {
+        m_unitCtrler = unitCtrler;
     }
 }

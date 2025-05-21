@@ -19,10 +19,13 @@ public class HealthSystem : MonoBehaviour
 
     private Camera m_camera;
 
+    private UnitController m_unit;
+
     private void Start()
     {
         m_currentHealth = m_maxHealth;
         m_camera = Camera.main;
+        m_unit = transform.GetComponent<UnitController>();
     }
 
     private void Update()
@@ -33,13 +36,26 @@ public class HealthSystem : MonoBehaviour
 
     public void TakeDamage(float damage)
     {
-        m_currentHealth -= damage;
+        m_currentHealth = Mathf.Clamp(m_currentHealth - damage, 0, m_currentHealth);
         UpdateHealthBar();
-        Debug.Log("HP: " + m_currentHealth);
+        if (m_currentHealth == 0)
+        {
+            BoxCollider bodyCollider = transform.GetComponent<BoxCollider>();
+            bodyCollider.enabled = false;
+            SetActiveHealhBar(false);
+            GameManager.Instance.NotifyAUnitKnockedOut(m_unit.UnitType, m_unit.ID);
+            m_unit.OnKnockedOut();
+        }
+        //Debug.Log("HP: " + m_currentHealth);
     }
 
     public void UpdateHealthBar()
     {
         m_newFillAmount = m_currentHealth / m_maxHealth;
+    }
+
+    public void SetActiveHealhBar(bool value)
+    {
+        m_healthBarTrs.gameObject.SetActive(value);
     }
 }
