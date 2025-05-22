@@ -754,7 +754,6 @@ MonoBehaviour:
   UnitType: 2
   TargetType: 1
   RotationSpeed: 7
-  m_damage: 10
   ID: 0
 --- !u!114 &7107471342419727040
 MonoBehaviour:
@@ -768,7 +767,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10d98a54607e6054181302304510fce0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_maxHealth: 100
   m_healthBarSpriteForeground: {fileID: 936346389306078048}
   m_healthBarTrs: {fileID: 5036280404441232192}
   m_reduceHealhAnimationSpeed: 2
@@ -1163,7 +1161,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: 1c7a79c600bbf45448372c7daef1d47b, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9b06860e582987f4b9da73c7ab6e923f, type: 3}
   m_Type: 3
   m_PreserveAspect: 0
   m_FillCenter: 1
