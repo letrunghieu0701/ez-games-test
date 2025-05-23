@@ -33,7 +33,6 @@ public class HealthBar : MonoBehaviour
         {
             m_healthBarSpriteForeground.fillAmount = Mathf.MoveTowards(m_healthBarSpriteForeground.fillAmount, m_newFillAmount, m_reduceHealhAnimationSpeed * Time.deltaTime);
         }
-
     }
 
     public void SetData(float maxHealth)

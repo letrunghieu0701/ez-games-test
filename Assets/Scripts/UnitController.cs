@@ -75,7 +75,7 @@ public class UnitController : MonoBehaviour
 
                     m_animator.SetBool("CanWalk", true);
                 }
-                else // Reach target
+                else // Reached target
                 {
                     m_navMeshAgent.isStopped = true;
                     m_animator.SetBool("CanWalk", false);
