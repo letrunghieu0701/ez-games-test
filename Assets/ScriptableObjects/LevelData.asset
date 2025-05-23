@@ -29,9 +29,9 @@ MonoBehaviour:
     GameMode: 2
     PlayerUnitNum: 1
     EnemyUnitNum: 2
-    ScaleAttackPlayer: 0.8
-    ScaleHealthPlayer: 0.8
-    ScaleMoveSpeedPlayer: 1
+    ScaleAttackPlayer: 1.4
+    ScaleHealthPlayer: 1.4
+    ScaleMoveSpeedPlayer: 1.2
     ScaleAttackEnemy: 0.8
     ScaleHealthEnemy: 0.8
     ScaleMoveSpeedEnemy: 1
@@ -62,8 +62,8 @@ MonoBehaviour:
     GameMode: 2
     PlayerUnitNum: 1
     EnemyUnitNum: 3
-    ScaleAttackPlayer: 2.3
-    ScaleHealthPlayer: 2.3
+    ScaleAttackPlayer: 4.025
+    ScaleHealthPlayer: 4.025
     ScaleMoveSpeedPlayer: 1.2
     ScaleAttackEnemy: 2.3
     ScaleHealthEnemy: 2.3
@@ -95,8 +95,8 @@ MonoBehaviour:
     GameMode: 2
     PlayerUnitNum: 1
     EnemyUnitNum: 4
-    ScaleAttackPlayer: 3.8
-    ScaleHealthPlayer: 3.8
+    ScaleAttackPlayer: 6.65
+    ScaleHealthPlayer: 6.65
     ScaleMoveSpeedPlayer: 1.2
     ScaleAttackEnemy: 3.8
     ScaleHealthEnemy: 3.8

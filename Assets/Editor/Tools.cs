@@ -37,6 +37,8 @@ public class Tools
             data.Name = "Level " + (i + 1);
             data.GameMode = (GameMode)((i % 3) + 1);
 
+            float playerScale = initialScale + increamentScale * i;
+
             if (data.GameMode == GameMode.OneVsOne)
             {
                 data.PlayerUnitNum = 1;
@@ -47,6 +49,7 @@ public class Tools
                 data.PlayerUnitNum = 1;
                 data.EnemyUnitNum = initialOneVsManyNum + increamentOneVsManyNum;
                 increamentOneVsManyNum += 1;
+                playerScale *= 1.75f;
             }
             else if (data.GameMode == GameMode.ManyVsMany)
             {
@@ -54,14 +57,14 @@ public class Tools
                 data.EnemyUnitNum = data.PlayerUnitNum;
             }
 
-            float scale = initialScale + increamentScale * i;
-            data.ScaleAttackPlayer = scale;
-            data.ScaleHealthPlayer = scale;
-            data.ScaleMoveSpeedPlayer = Mathf.Clamp(scale, 1, 1.2f);
+            data.ScaleAttackPlayer = playerScale;
+            data.ScaleHealthPlayer = playerScale;
+            data.ScaleMoveSpeedPlayer = Mathf.Clamp(playerScale, 1, 1.2f);
 
-            data.ScaleAttackEnemy = scale;
-            data.ScaleHealthEnemy = scale;
-            data.ScaleMoveSpeedEnemy = Mathf.Clamp(scale, 1, 1.2f);
+            float enemyScale = initialScale + increamentScale * i;
+            data.ScaleAttackEnemy = enemyScale;
+            data.ScaleHealthEnemy = enemyScale;
+            data.ScaleMoveSpeedEnemy = Mathf.Clamp(enemyScale, 1, 1.2f);
 
             asset.Levels.Add(data);
         }
