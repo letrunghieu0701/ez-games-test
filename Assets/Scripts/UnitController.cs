@@ -13,31 +13,38 @@ public class UnitController : MonoBehaviour
 
     protected Animator m_animator;
     protected NavMeshAgent m_navMeshAgent;
+    private HealthBar m_healthBar;
     [HideInInspector]
     public UnitController m_targetCtrler;
     public UnitType UnitType;
     public UnitType TargetType;
 
     protected const float MIN_ATTACK_DISTANCE_BETWEEN_2_CHAR = 0.8f;
-
     public float RotationSpeed = 10f;
-    //public float _moveSpeed;
-    //public float _hp = 100f;
-    [SerializeField]
-    private int m_damage = 10;
-
     static int UnitCount = 0;
     [HideInInspector]
     public int ID;
 
     protected UnitState m_currentState = UnitState.FindTarget;
-
     protected bool m_isAttacking = false;
+
+    private LevelData m_currentLevelData;
+    private UnitBaseStatData m_baseStatData;
 
     private void Awake()
     {
         UnitCount += 1;
         ID = UnitCount;
+
+        m_animator = this.transform.GetComponent<Animator>();
+        m_navMeshAgent = this.transform.GetComponent<NavMeshAgent>();
+        m_healthBar = this.transform.GetComponent<HealthBar>();
+
+        DealDamage[] dealDmgs = transform.GetComponentsInChildren<DealDamage>();
+        for (int i = 0; i < dealDmgs.Length; i++)
+        {
+            dealDmgs[i].SetUnitCtrler(this);
+        }
 
         m_rightHandCollider.enabled = false;
         m_leftHandCollider.enabled = false;
@@ -45,15 +52,6 @@ public class UnitController : MonoBehaviour
 
     void Start()
     {
-        m_animator = this.transform.GetComponent<Animator>();
-        m_navMeshAgent = this.transform.GetComponent<NavMeshAgent>();
-
-        DealDamage[] dealDmgs = transform.GetComponentsInChildren<DealDamage>();
-        for (int i = 0; i < dealDmgs.Length; i++)
-        {
-            dealDmgs[i].SetDamage(m_damage);
-            dealDmgs[i].SetUnitCtrler(this);
-        }
     }
 
     void Update()
@@ -114,18 +112,44 @@ public class UnitController : MonoBehaviour
             direction.y = 0f;
             Quaternion rotation = Quaternion.LookRotation(direction);
             transform.rotation = Quaternion.Slerp(transform.rotation, rotation, Time.deltaTime * RotationSpeed);
+
+            if (m_targetCtrler.GetUnitState() == UnitState.KnockedOut || m_targetCtrler.GetUnitState() == UnitState.InPool)
+            {
+                m_targetCtrler = null;
+                m_currentState = UnitState.FindTarget;
+            }
         }
     }
 
-    public void OnAUnitKnockedOut(int theirUnitID)
+    public void SetData(LevelData levelData, UnitBaseStatData statData)
     {
-        if (m_targetCtrler != null && m_targetCtrler.ID != theirUnitID)
+        m_currentLevelData = levelData;
+        m_baseStatData = statData;
+
+        float scaleAtk = UnitType == UnitType.Player ? m_currentLevelData.ScaleAttackPlayer : m_currentLevelData.ScaleAttackEnemy;
+        float scaleHp = UnitType == UnitType.Player ? m_currentLevelData.ScaleHealthPlayer : m_currentLevelData.ScaleHealthEnemy;
+        float scaleSpeed = UnitType == UnitType.Player ? m_currentLevelData.ScaleMoveSpeedPlayer : m_currentLevelData.ScaleMoveSpeedEnemy;
+
+        // Attack
+        DealDamage[] dealDmgs = transform.GetComponentsInChildren<DealDamage>();
+        for (int i = 0; i < dealDmgs.Length; i++)
         {
-            return;
+            dealDmgs[i].SetDamage(m_baseStatData.Attack * scaleAtk);
         }
 
-        m_targetCtrler = null;
+        // HP
+        m_healthBar.SetData(m_baseStatData.Health * scaleHp);
+
+        // Move speed
+        m_navMeshAgent.speed = m_baseStatData.MoveSpeed * scaleSpeed;
+
         m_currentState = UnitState.FindTarget;
+        m_isAttacking = false;
+    }
+
+    public UnitState GetUnitState()
+    {
+        return m_currentState;
     }
 
     protected virtual void AttackTarget()

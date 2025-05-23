@@ -133,7 +133,7 @@ RectTransform:
   m_GameObject: {fileID: 949114935128811709}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_LocalScale: {x: 0.7, y: 0.7, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 188552561342803585}
@@ -1575,7 +1575,7 @@ NavMeshAgent:
   m_GameObject: {fileID: 8576082331078249218}
   m_Enabled: 1
   m_AgentTypeID: 0
-  m_Radius: 0.3
+  m_Radius: 0.15
   m_Speed: 2
   m_Acceleration: 8
   avoidancePriority: 50
@@ -1606,7 +1606,6 @@ MonoBehaviour:
   UnitType: 1
   TargetType: 2
   RotationSpeed: 7
-  m_damage: 60
   ID: 0
 --- !u!114 &2228502379385255439
 MonoBehaviour:
@@ -1620,7 +1619,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 10d98a54607e6054181302304510fce0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_maxHealth: 100
   m_healthBarSpriteForeground: {fileID: 4703595612309179910}
   m_healthBarTrs: {fileID: 6657985038322680408}
   m_reduceHealhAnimationSpeed: 2

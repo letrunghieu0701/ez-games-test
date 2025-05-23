@@ -69,10 +69,14 @@ public class ObjectPooling
             unitPool = m_playerUnitPool;
         }
 
-        GameObject unit = unitPool.Dequeue();
-        if (unit == null)
+        GameObject unit;
+        if (unitPool.Count == 0)
         {
             unit = GameObject.Instantiate(prefab, Vector3.zero, Quaternion.identity, m_poolContainer);
+        }
+        else
+        {
+            unit = unitPool.Dequeue();
         }
 
         return unit;

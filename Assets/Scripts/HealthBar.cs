@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class HealthSystem : MonoBehaviour
+public class HealthBar : MonoBehaviour
 {
-    [SerializeField]
-    private float m_maxHealth = 100f;
-    private float m_currentHealth;
+    public float m_maxHealth;
+    public float m_currentHealth;
 
     [SerializeField]
     private Image m_healthBarSpriteForeground;
@@ -23,15 +22,26 @@ public class HealthSystem : MonoBehaviour
 
     private void Start()
     {
-        m_currentHealth = m_maxHealth;
         m_camera = Camera.main;
-        m_unit = transform.GetComponent<UnitController>();
+        m_unit = this.transform.GetComponent<UnitController>();
     }
 
     private void Update()
     {
         m_healthBarTrs.rotation = Quaternion.LookRotation(m_healthBarTrs.position - m_camera.transform.position);
-        m_healthBarSpriteForeground.fillAmount = Mathf.MoveTowards(m_healthBarSpriteForeground.fillAmount, m_newFillAmount, m_reduceHealhAnimationSpeed * Time.deltaTime);
+        if (m_healthBarSpriteForeground.fillAmount > m_newFillAmount)
+        {
+            m_healthBarSpriteForeground.fillAmount = Mathf.MoveTowards(m_healthBarSpriteForeground.fillAmount, m_newFillAmount, m_reduceHealhAnimationSpeed * Time.deltaTime);
+        }
+
+    }
+
+    public void SetData(float maxHealth)
+    {
+        m_maxHealth = maxHealth;
+        m_currentHealth = m_maxHealth;
+        UpdateHealthBar();
+        m_healthBarSpriteForeground.fillAmount = 1;
     }
 
     public void TakeDamage(float damage)
@@ -40,13 +50,12 @@ public class HealthSystem : MonoBehaviour
         UpdateHealthBar();
         if (m_currentHealth == 0)
         {
-            BoxCollider bodyCollider = transform.GetComponent<BoxCollider>();
+            BoxCollider bodyCollider = this.transform.GetComponent<BoxCollider>();
             bodyCollider.enabled = false;
             SetActiveHealhBar(false);
             GameManager.Instance.NotifyAUnitKnockedOut(m_unit.UnitType, m_unit.ID);
             m_unit.OnKnockedOut();
         }
-        //Debug.Log("HP: " + m_currentHealth);
     }
 
     public void UpdateHealthBar()

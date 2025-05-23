@@ -18,10 +18,27 @@ public class PlayerController : UnitController
             base.m_animator.SetTrigger("PunchLeft");
             base.m_isAttacking = true;
         }
-        if (Input.GetKeyDown(KeyCode.L))
+        else if (Input.GetKeyDown(KeyCode.L))
         {
             base.m_animator.SetTrigger("PunchRight");
             base.m_isAttacking = true;
+        }
+        else if (Input.touchCount > 0)
+        {
+            Touch touch = Input.touches[0];
+            if (touch.phase == TouchPhase.Began)
+            {
+                if (touch.position.x < Screen.width / 2)
+                {
+                    base.m_animator.SetTrigger("PunchLeft");
+                    base.m_isAttacking = true;
+                }
+                else
+                {
+                    base.m_animator.SetTrigger("PunchRight");
+                    base.m_isAttacking = true;
+                }
+            }
         }
     }
 }

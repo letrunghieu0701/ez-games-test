@@ -18,7 +18,7 @@ public class DealDamage : MonoBehaviour
                 return;
             }
 
-            HealthSystem enemyHealth = other.GetComponent<HealthSystem>();
+            HealthBar enemyHealth = other.GetComponent<HealthBar>();
             enemyHealth.TakeDamage(m_damage);
         }
         else if (m_unitCtrler.TargetType == UnitType.Player && other.CompareTag("Player"))
@@ -29,12 +29,12 @@ public class DealDamage : MonoBehaviour
                 return;
             }
 
-            HealthSystem enemyHealth = other.GetComponent<HealthSystem>();
+            HealthBar enemyHealth = other.GetComponent<HealthBar>();
             enemyHealth.TakeDamage(m_damage);
         }
     }
 
-    public void SetDamage(int value)
+    public void SetDamage(float value)
     {
         m_damage = value;
     }

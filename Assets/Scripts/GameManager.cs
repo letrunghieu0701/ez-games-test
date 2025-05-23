@@ -18,21 +18,16 @@ public class GameManager : MonoBehaviour
     private int m_initEnemyUnitPoolingNum;
 
     [SerializeField]
-    private Transform m_playerSpawnPos;
+    private List<Transform> m_playerSpawnPos;
     [SerializeField]
-    private Transform m_enemySpawnPos;
-
-    //[SerializeField]
-    //private int m_numberOfEachTeam;
-
-    [SerializeField]
-    private GameMode m_gameMode = GameMode.OneVsMany;
+    private List<Transform> m_enemySpawnPos;
 
     private Dictionary<int, GameObject> m_playerUnits = new Dictionary<int, GameObject>();
     private Dictionary<int, GameObject> m_enemyUnits = new Dictionary<int, GameObject>();
 
-    private UnityEvent<int> m_UnitKnockedOut = new UnityEvent<int>();
-    private UnityEvent m_Victory = new UnityEvent();
+    public UnitBaseStatDataSO m_unitBaseStatDataSO;
+    public LevelDataSO m_levelDataSO;
+    private LevelData m_currentLevelData;
 
     private void Awake()
     {
@@ -47,74 +42,78 @@ public class GameManager : MonoBehaviour
         }
     }
 
-    // Start is called before the first frame update
     void Start()
     {
         ObjectPooling.Instance.Init(m_initPlayerUnitPoolingNum, m_playerPrefab, m_initEnemyUnitPoolingNum, m_enemyPrefab);
-
-        SetGameMode(m_gameMode);
+        UIManager.Instance.ShowUI("UIMenu");
     }
 
-    // Update is called once per frame
     void Update()
     {
-        
     }
 
-    public void SetGameMode(GameMode gameMode)
+    public void LoadGameMode(int gameLevel)
     {
-        if (gameMode == GameMode.OneVsOne)
+        CleanBattleStage();
+        m_currentLevelData = m_levelDataSO.Levels[gameLevel - 1];
+        switch ((GameMode)m_currentLevelData.GameMode)
         {
-            GetUnit(UnitType.Player);
-            GetUnit(UnitType.Enemy);
-        }
-        else if (gameMode == GameMode.OneVsMany)
-        {
-            GetUnit(UnitType.Player);
-
-            for (int i = 0; i < 5; i++)
-            {
-                GetUnit(UnitType.Enemy);
-            }
-        }
-        else if (gameMode == GameMode.ManyVsMany)
-        {
-            for (int i = 0; i < 5; i++)
-            {
+            case GameMode.OneVsOne:
                 GetUnit(UnitType.Player);
-            }
-
-            for (int i = 0; i < 5; i++)
-            {
                 GetUnit(UnitType.Enemy);
-            }
+                break;
+            case GameMode.OneVsMany:
+                GetUnit(UnitType.Player);
+
+                for (int i = 0; i < m_currentLevelData.EnemyUnitNum; i++)
+                {
+                    GetUnit(UnitType.Enemy);
+                }
+                break;
+            case GameMode.ManyVsMany:
+                for (int i = 0; i < m_currentLevelData.PlayerUnitNum; i++)
+                {
+                    GetUnit(UnitType.Player);
+                }
+
+                for (int i = 0; i < m_currentLevelData.EnemyUnitNum; i++)
+                {
+                    GetUnit(UnitType.Enemy);
+                }
+                break;
         }
+
+        UIManager.Instance.HideAllUI(); ;
     }
 
     private void GetUnit(UnitType unitType)
     {
         Dictionary<int, GameObject> units = m_enemyUnits;
-        Transform spawnPos = m_enemySpawnPos;
+        UnitBaseStatData statData = m_unitBaseStatDataSO.Stats[1];
+        List<Transform> spawnPos = m_enemySpawnPos;
         if (unitType == UnitType.Player)
         {
             units = m_playerUnits;
             spawnPos = m_playerSpawnPos;
+            statData = m_unitBaseStatDataSO.Stats[0];
         }
 
+        // Get unit
         GameObject unit = ObjectPooling.Instance.GetUnit(unitType);
         unit.SetActive(true);
+        UnitController unitCtrler = unit.GetComponent<UnitController>();
         Vector3 randomOffset = new Vector3(Random.Range(0, 1f), 0, Random.Range(0, 1f));
-        unit.transform.position = spawnPos.position + randomOffset;
+        unit.transform.position = spawnPos[unitCtrler.ID % spawnPos.Count].position + randomOffset;
 
-        HealthSystem unitHealthSys = unit.GetComponent<HealthSystem>();
+        // Reset health bar and collider
+        HealthBar unitHealthSys = unit.GetComponent<HealthBar>();
         unitHealthSys.SetActiveHealhBar(true);
         BoxCollider bodyCollider = unit.GetComponent<BoxCollider>();
         bodyCollider.enabled = true;
 
-        units.Add(unit.GetComponent<UnitController>().ID, unit);
-        UnitController unitCtrler = unit.GetComponent<UnitController>();
-        m_UnitKnockedOut.AddListener(unitCtrler.OnAUnitKnockedOut);
-        m_Victory.AddListener(unitCtrler.OnVictory);
+        // Set data
+        units.Add(unitCtrler.ID, unit);
+        unitCtrler.SetData(m_currentLevelData, statData);
     }
 
     public UnitController GetClosesTarget(UnitType targetType, Vector3 myPos)
@@ -154,23 +153,48 @@ public class GameManager : MonoBehaviour
             unitsByKey = m_playerUnits;
         }
 
-        GameObject unit = unitsByKey[unitID];
-        UnitController unitCtrler = unit.GetComponent<UnitController>();
-        m_UnitKnockedOut.RemoveListener(unitCtrler.OnAUnitKnockedOut);
-        m_Victory.RemoveListener(unitCtrler.OnVictory);
         unitsByKey.Remove(unitID);
-
-        m_UnitKnockedOut.Invoke(unitID);
 
         if (m_playerUnits.Count == 0 || m_enemyUnits.Count == 0)
         {
-            m_Victory.Invoke();
+            foreach (var item in m_playerUnits)
+            {
+                UnitController unitCtrler = item.Value.GetComponent<UnitController>();
+                unitCtrler.OnVictory();
+            }
+
+            foreach (var item in m_enemyUnits)
+            {
+                UnitController unitCtrler = item.Value.GetComponent<UnitController>();
+                unitCtrler.OnVictory();
+            }
+
+            UIManager.Instance.ShowUI("UIMenu");
         }
     }
 
     public void RecycleUnit(UnitType unitType, GameObject unit)
     {
         ObjectPooling.Instance.RecycleUnit(unitType, unit);
+    }
+
+    private void CleanBattleStage()
+    {
+        foreach (var item in m_playerUnits)
+        {
+            GameObject unit = item.Value;
+            UnitController unitCtrler = unit.GetComponent<UnitController>();
+            RecycleUnit(unitCtrler.UnitType, unit);
+        }
+        m_playerUnits.Clear();
+
+        foreach (var item in m_enemyUnits)
+        {
+            GameObject unit = item.Value;
+            UnitController unitCtrler = unit.GetComponent<UnitController>();
+            RecycleUnit(unitCtrler.UnitType, unit);
+        }
+        m_enemyUnits.Clear();
     }
 }
 
